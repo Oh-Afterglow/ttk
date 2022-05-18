@@ -11,11 +11,11 @@ import SceneKit
 
 class ARSCNViewModel: ObservableObject {
     var arSCNView: ARSCNView
-    var scene = SCNScene()  // TODO: build my scene!
+    var scene = SCNScene(named: "art.scnassets/SceneKit Scene.scn")
     
     init() {
         arSCNView = ARSCNView(frame: .zero)
-        arSCNView.scene = self.scene
+        arSCNView.scene = self.scene!
         arSCNView.setupForARWorldConfiguration()
     }
 }
@@ -24,9 +24,10 @@ extension ARSCNView{
     func setupForARWorldConfiguration(){
         let configuration = ARWorldTrackingConfiguration()
         configuration.isAutoFocusEnabled = true
-        configuration.planeDetection = [.horizontal, .vertical]
+        configuration.planeDetection = [.horizontal]
         configuration.environmentTexturing = .automatic
         configuration.isLightEstimationEnabled = true
         self.session.run(configuration)
     }
 }
+
