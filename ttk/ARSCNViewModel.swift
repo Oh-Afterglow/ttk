@@ -15,12 +15,12 @@ class ARSCNViewModel: ObservableObject {
     
     init() {
         arSCNView = ARSCNView(frame: .zero)
-        arSCNView.scene = self.scene!
+        arSCNView.scene = SCNScene()
         arSCNView.setupForARWorldConfiguration()
     }
 }
 
-extension ARSCNView{
+extension ARSCNView {
     func setupForARWorldConfiguration(){
         let configuration = ARWorldTrackingConfiguration()
         configuration.isAutoFocusEnabled = true
