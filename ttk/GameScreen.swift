@@ -13,52 +13,95 @@ struct GameScreen: View {
     @Binding var gameState: GameState
     @State var turn = Turn.first
     @State var accumulatedObjectNumber = 0
-    @State var placeObject = false
 
     
     var body: some View {
         ZStack(alignment: .top) {
-            ARSCNViewContainer(arSCNViewModel: arSCNViewModel, gameState: $gameState, affect: $placeObject, accumulatedObjectNumber: $accumulatedObjectNumber)
+            ARSCNViewContainer(arSCNViewModel: arSCNViewModel, gameState: $gameState)
+            
             if gameState == .ongoing {
-                HStack {
-                    Button(action: {
-                        arSCNViewModel.translateObject(direction: .forward)
-                    }, label: {
-                        Text("⬆️")
-                    })
-                    Button(action: {
-                        arSCNViewModel.translateObject(direction: .backward)
-                    }, label: {
-                        Text("⬇️")
-                    })
-                    Button(action: {
-                        accumulatedObjectNumber += 1
-                        arSCNViewModel.releaseNewModel()
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                            if gameState == .ongoing || gameState == .unstarted { // TODO: remove unstarted
-                                arSCNViewModel.addNewModel()
-                            }
-                        }
-                    }, label: {
-                       Text("place")
-                    })
-                    Button(action: {
-                        arSCNViewModel.translateObject(direction: .left)
-                    }, label: {
-                        Text("⬅️")
-                    })
-                    Button(action: {
-                        arSCNViewModel.translateObject(direction: .right)
-                    }, label: {
-                        Text("➡️")
-                    })
-                }
-            } else if gameState == .unstarted {  
+                inGameLabel
+            } else if gameState == .unstarted {
+                prestartLabel
+            } else if gameState == .ended {
+                // nothing...
+            }
+        }
+    }
+    
+    var prestartLabel: some View {
+        VStack {
+            Text("Tap on a plane to place the game scene.")
+            Button(action: {
+                gameState = .ongoing
+            }, label: {
+                Text("Start Game")
+            })
+        }
+    }
+    
+    var inGameLabel: some View {
+        VStack{
+            HStack {
                 Button(action: {
-                    gameState = .ongoing
+                    arSCNViewModel.translateObject(direction: .forward)
+//                    print(arSCNViewModel.newModelNode.worldPosition)
+//                    print(arSCNViewModel.newModelNode.position)
+//                    print(arSCNViewModel.cameraDirection)
                 }, label: {
-                    Text("Start Game")
+                    Text("⬆️")
                 })
+                .buttonStyle(.bordered)
+                Button(action: {
+                    arSCNViewModel.translateObject(direction: .backward)
+                }, label: {
+                    Text("⬇️")
+                })
+                .buttonStyle(.bordered)
+                Button(action: {
+                    accumulatedObjectNumber += 1
+                    arSCNViewModel.releaseNewModel()
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
+                        if gameState == .ongoing || gameState == .unstarted { // TODO: remove unstarted
+                            arSCNViewModel.addNewModel()
+                        }
+                    }
+                }, label: {
+                   Text("place")
+                })
+                .buttonStyle(.bordered)
+                Button(action: {
+                    arSCNViewModel.translateObject(direction: .left)
+                }, label: {
+                    Text("⬅️")
+                })
+                .buttonStyle(.bordered)
+                Button(action: {
+                    arSCNViewModel.translateObject(direction: .right)
+                }, label: {
+                    Text("➡️")
+                })
+                .buttonStyle(.bordered)
+            }
+            HStack{
+                Button(action: {
+                    arSCNViewModel.rotateObject(direction: .x)
+                }, label: {
+                    Text("Rotate x")
+                })
+                .buttonStyle(.bordered)
+                Button(action: {
+                    arSCNViewModel.rotateObject(direction: .y)
+                }, label: {
+                    Text("Rotate y")
+                })
+                .buttonStyle(.bordered)
+                Button(action: {
+                    arSCNViewModel.rotateObject(direction: .z)
+                }, label: {
+                    Text("Rotate z")
+                })
+                .buttonStyle(.bordered)
             }
         }
     }

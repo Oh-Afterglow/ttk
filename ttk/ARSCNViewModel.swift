@@ -15,6 +15,7 @@ class ARSCNViewModel: ObservableObject {
     var cameraDirection = SCNVector3()
     var newModelNode = SCNNode() // a special node to place the newly added object
     var counter = 0
+    var modelFiles = ["art.scnassets/A.scn",]
     
     init() {
         arSCNView = ARSCNView(frame: .zero)
@@ -35,7 +36,7 @@ class ARSCNViewModel: ObservableObject {
         }
         
         // TODO: randomly choose a new model...
-        let modelNodes = SCNScene(named: "art.scnassets/A.scn")!.rootNode.childNodes
+        let modelNodes = SCNScene(named: modelFiles[0])!.rootNode.childNodes
         for node in modelNodes {
             newModelNode.addChildNode(node)
         }
@@ -44,10 +45,11 @@ class ARSCNViewModel: ObservableObject {
     func releaseNewModel() {
         let modelNode = newModelNode.childNodes.first! // The model node is before the physics shape node in the scene
         
-        let APhysicsBody = SCNPhysicsBody(type: .dynamic, shape: SCNPhysicsShape(node: newModelNode.childNodes[1], options: [.collisionMargin: 0.0]))
+        let APhysicsBody = SCNPhysicsBody(type: .dynamic, shape: SCNPhysicsShape(node: newModelNode.childNodes[0], options: [.collisionMargin: 0.0]))
         APhysicsBody.restitution = 0.2
-        APhysicsBody.angularVelocityFactor = SCNVector3(x: 0.2, y: 0.2, z: 0.2)
-        APhysicsBody.categoryBitMask = 1   // 1 is for the new model
+        APhysicsBody.angularVelocityFactor = SCNVector3(x: 0.1, y: 0.1, z: 0.1)  // make it hard to rotate
+        APhysicsBody.contactTestBitMask = 1  // only report the collision with ground
+        APhysicsBody.categoryBitMask ^= 0  // clear the last bit to avoid report contact between objects
         modelNode.physicsBody = APhysicsBody
         
         newModelNode.name = "model\(counter)"
@@ -60,9 +62,9 @@ class ARSCNViewModel: ObservableObject {
         
         let directionAngle: Float
         if direction == .left || direction == .right { // move in a vertical direction to the camera direction
-            directionAngle = atan(cameraDirection.x / cameraDirection.z)
+            directionAngle = atan(-cameraDirection.x / cameraDirection.z)
         } else {  // move in a parallel direction to the camera direction
-            directionAngle = atan(-cameraDirection.z / cameraDirection.x)
+            directionAngle = atan(cameraDirection.z / cameraDirection.x)
         }
 
         // move 0.5cm
@@ -73,7 +75,7 @@ class ARSCNViewModel: ObservableObject {
             deltaX = -deltaX
             deltaZ = -deltaZ
         }
-
+        
         // move the node and limit it in the field
         if newModelNode.position.x + deltaX > 0.075 {
             newModelNode.position.x = 0.075
@@ -93,8 +95,15 @@ class ARSCNViewModel: ObservableObject {
         
     }
     
-    func rotateObject() {
-        
+    func rotateObject(direction: RotateDirection) {
+        switch direction {
+        case .x:
+            newModelNode.eulerAngles.x += .pi / 18.0
+        case .y:
+            newModelNode.eulerAngles.y += .pi / 18.0
+        case .z:
+            newModelNode.eulerAngles.z += .pi / 18.0
+        }
     }
     
 }
@@ -106,6 +115,7 @@ extension ARSCNView {
         configuration.planeDetection = [.horizontal]
         configuration.environmentTexturing = .automatic
         configuration.isLightEstimationEnabled = true
+//        configuration.worldAlignment = .gravityAndHeading
         self.session.run(configuration)
     }
 }

@@ -15,8 +15,6 @@ struct ARSCNViewContainer: UIViewRepresentable {
     @Binding var gameState: GameState
     @State var highestObjectHeight = 0.0
     var gameSceneNode = SCNNode()
-    @Binding var affect: Bool
-    @Binding var accumulatedObjectNumber: Int
     
     func makeUIView(context: Context) -> ARSCNView {
         gameSceneNode.name = "gameScene"
@@ -34,8 +32,10 @@ struct ARSCNViewContainer: UIViewRepresentable {
         let plateNode = gameSceneNode.childNode(withName: "objectDropPlate", recursively: true)!
         let platePhysicsBody = SCNPhysicsBody(type: .static, shape: SCNPhysicsShape(node: plateNode, options: [.collisionMargin: 0.0]))
         platePhysicsBody.isAffectedByGravity = false
-        platePhysicsBody.contactTestBitMask = 1  // only send signal when a new model falls on it
         platePhysicsBody.restitution = 0.0
+        platePhysicsBody.friction = 0.8  // make it more unable to slide
+        platePhysicsBody.categoryBitMask ^= 1
+        print(platePhysicsBody.categoryBitMask)
         plateNode.physicsBody = platePhysicsBody
         
         // also add to the transparent lower plane, to let the objects fall to the table
@@ -43,7 +43,8 @@ struct ARSCNViewContainer: UIViewRepresentable {
         let planePhysicsBody = SCNPhysicsBody(type: .static, shape: SCNPhysicsShape(node: planeNode, options: [.collisionMargin: 0.0]))
         planePhysicsBody.restitution = 0.0
         planePhysicsBody.isAffectedByGravity = false
-        planePhysicsBody.contactTestBitMask = 1
+        planePhysicsBody.categoryBitMask = 1  // only report contact with table plane
+        print(planePhysicsBody.categoryBitMask)
         planeNode.physicsBody = planePhysicsBody
         
         
@@ -77,22 +78,19 @@ struct ARSCNViewContainer: UIViewRepresentable {
         
         func physicsWorld(_ world: SCNPhysicsWorld, didBegin contact: SCNPhysicsContact) {
             if contact.nodeA.name == "tablePlane" || contact.nodeB.name == "tablePlane" {
-                // an object falls off the ground
-//                parent.gameState = .ended
+                // when an object falls off the ground, the game stops
+                parent.gameState = .ended
             }
         }
         
         func session(_ session: ARSession, didUpdate frame: ARFrame) {
             if frameCounter % 2 == 0 {
                 // update the direction of camera 30 times a second
-                let cameraMat = frame.camera.transform
-                let origin = parent.arSCNViewModel.newModelNode.position
-                parent.arSCNViewModel.cameraDirection = SCNVector3(x: -1 * cameraMat[3][1] - origin.x, y: -1 * cameraMat[3][2] - origin.y, z: -1 * cameraMat[3][3] - origin.z)
+                
+                let cameraMat = SCNMatrix4(frame.camera.transform)
+//                let origin = parent.arSCNViewModel.newModelNode.position
+                parent.arSCNViewModel.cameraDirection = SCNVector3(x: -1 * cameraMat.m31, y: -1 * cameraMat.m32, z: -1 * cameraMat.m33)
             }
-//            if frameCounter % 60 == 0 {
-//                print(frame.camera.transform)
-//                print(parent.arSCNViewModel.cameraDirection)
-//            }
             frameCounter += 1
         }
         
