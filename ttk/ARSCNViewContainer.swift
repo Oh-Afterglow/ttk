@@ -13,7 +13,7 @@ struct ARSCNViewContainer: UIViewRepresentable {
     
     @ObservedObject var arSCNViewModel: ARSCNViewModel
     @Binding var gameState: GameState
-    @State var highestObjectHeight = 0.0
+    @Binding var scenePlaced: Bool
     var gameSceneNode = SCNNode()
     
     func makeUIView(context: Context) -> ARSCNView {
@@ -33,9 +33,10 @@ struct ARSCNViewContainer: UIViewRepresentable {
         let platePhysicsBody = SCNPhysicsBody(type: .static, shape: SCNPhysicsShape(node: plateNode, options: [.collisionMargin: 0.0]))
         platePhysicsBody.isAffectedByGravity = false
         platePhysicsBody.restitution = 0.0
-        platePhysicsBody.friction = 0.8  // make it more unable to slide
+        platePhysicsBody.friction = 1.0  // make it more unable to slide
+        platePhysicsBody.rollingFriction = 0.95
         platePhysicsBody.categoryBitMask ^= 1
-        print(platePhysicsBody.categoryBitMask)
+//        print(platePhysicsBody.categoryBitMask)
         plateNode.physicsBody = platePhysicsBody
         
         // also add to the transparent lower plane, to let the objects fall to the table
@@ -44,7 +45,7 @@ struct ARSCNViewContainer: UIViewRepresentable {
         planePhysicsBody.restitution = 0.0
         planePhysicsBody.isAffectedByGravity = false
         planePhysicsBody.categoryBitMask = 1  // only report contact with table plane
-        print(planePhysicsBody.categoryBitMask)
+//        print(planePhysicsBody.categoryBitMask)
         planeNode.physicsBody = planePhysicsBody
         
         
@@ -80,6 +81,7 @@ struct ARSCNViewContainer: UIViewRepresentable {
             if contact.nodeA.name == "tablePlane" || contact.nodeB.name == "tablePlane" {
                 // when an object falls off the ground, the game stops
                 parent.gameState = .ended
+                
             }
         }
         
@@ -110,6 +112,7 @@ struct ARSCNViewContainer: UIViewRepresentable {
                     let columns = hitTest.first!.worldTransform.columns.3
                     parent.gameSceneNode.position = SCNVector3Make(columns.x, columns.y, columns.z)
                     self.parent.arSCNViewModel.arSCNView.scene.rootNode.addChildNode(parent.gameSceneNode)
+                    parent.scenePlaced = true
                 }
             }
         }

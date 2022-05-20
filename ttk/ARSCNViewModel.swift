@@ -16,12 +16,14 @@ class ARSCNViewModel: ObservableObject {
     var newModelNode = SCNNode() // a special node to place the newly added object
     var counter = 0
     var modelFiles = ["art.scnassets/A.scn",]
+    var highestObjectHeight: Float = 0.0
+
     
     init() {
         arSCNView = ARSCNView(frame: .zero)
         arSCNView.scene = SCNScene()
         arSCNView.scene.physicsWorld.gravity.y = -1.0
-        newModelNode.position.y += 0.3
+        newModelNode.position.y += (0.3 + highestObjectHeight)
         newModelNode.name = "newModel"
         arSCNView.setupForARWorldConfiguration()
     }
@@ -45,8 +47,10 @@ class ARSCNViewModel: ObservableObject {
     func releaseNewModel() {
         let modelNode = newModelNode.childNodes.first! // The model node is before the physics shape node in the scene
         
-        let APhysicsBody = SCNPhysicsBody(type: .dynamic, shape: SCNPhysicsShape(node: newModelNode.childNodes[0], options: [.collisionMargin: 0.0]))
+        let APhysicsBody = SCNPhysicsBody(type: .dynamic, shape: SCNPhysicsShape(node: newModelNode.childNodes[1], options: [.collisionMargin: 0.0]))
         APhysicsBody.restitution = 0.2
+        APhysicsBody.friction = 1.0
+        APhysicsBody.rollingFriction = 0.95
         APhysicsBody.angularVelocityFactor = SCNVector3(x: 0.1, y: 0.1, z: 0.1)  // make it hard to rotate
         APhysicsBody.contactTestBitMask = 1  // only report the collision with ground
         APhysicsBody.categoryBitMask ^= 0  // clear the last bit to avoid report contact between objects
@@ -106,6 +110,17 @@ class ARSCNViewModel: ObservableObject {
         }
     }
     
+    func hideUndroppedModel() {
+        if newModelNode.name == "newModel" {
+            newModelNode.isHidden = true
+        }
+    }
+    
+    func updateHighestModelHeight() {
+        if newModelNode.position.y - 0.3 > self.highestObjectHeight {
+            self.highestObjectHeight = newModelNode.position.y - 0.3
+        }
+    }
 }
 
 extension ARSCNView {
@@ -115,7 +130,6 @@ extension ARSCNView {
         configuration.planeDetection = [.horizontal]
         configuration.environmentTexturing = .automatic
         configuration.isLightEstimationEnabled = true
-//        configuration.worldAlignment = .gravityAndHeading
         self.session.run(configuration)
     }
 }

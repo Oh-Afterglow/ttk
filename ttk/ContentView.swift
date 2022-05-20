@@ -11,16 +11,16 @@ import SwiftUI
 struct ContentView: View {
     
     @StateObject var arSCNViewModel = ARSCNViewModel()
-    @State var gameState = GameState.unstarted
+    @State var gameState = GameState.title
     
     
     var body: some View {
-//        if gameState == .title {
-//            TitleScreen(gameState: self.$gameState)
-//        } else {
-//            GameScreen(arSCNViewModel: self.arSCNViewModel, gameState: self.$gameState)
-//        }
-        GameScreen(arSCNViewModel: self.arSCNViewModel, gameState: self.$gameState)
+        if gameState == .title {
+            TitleScreen(gameState: self.$gameState)
+        } else {
+            GameScreen(arSCNViewModel: self.arSCNViewModel, gameState: self.$gameState)
+                .ignoresSafeArea()
+        }
 
     }
 }
