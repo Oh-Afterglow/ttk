@@ -12,12 +12,18 @@ struct GameScreen: View {
     @ObservedObject var arSCNViewModel: ARSCNViewModel
     @Binding var gameState: GameState
     @State var turn = Turn.first
+    @State var accumulatedObjectNumber = 0
+    @State var affect = false
 
     
     var body: some View {
-        ZStack {
-            ARSCNViewContainer(arSCNViewModel: arSCNViewModel, gameState: $gameState)
-            
+        ZStack(alignment: .top) {
+            ARSCNViewContainer(arSCNViewModel: arSCNViewModel, gameState: $gameState, affect: $affect)
+            Button(action: {
+                affect = true
+            }, label: {
+               Text("affect")
+            })
         }
     }
 }

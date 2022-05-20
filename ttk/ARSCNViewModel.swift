@@ -11,11 +11,12 @@ import SceneKit
 
 class ARSCNViewModel: ObservableObject {
     var arSCNView: ARSCNView
-    var scene = SCNScene(named: "art.scnassets/SceneKit Scene.scn")
+//    var scene = SCNScene(named: "art.scnassets/SceneKit Scene.scn")
     
     init() {
         arSCNView = ARSCNView(frame: .zero)
         arSCNView.scene = SCNScene()
+        arSCNView.scene.physicsWorld.gravity.y = -1.0
         arSCNView.setupForARWorldConfiguration()
     }
 }

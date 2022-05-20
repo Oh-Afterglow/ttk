@@ -11,7 +11,7 @@ import SwiftUI
 struct ContentView: View {
     
     @StateObject var arSCNViewModel = ARSCNViewModel()
-    @State var gameState = GameState.title
+    @State var gameState = GameState.unstarted
     
     
     var body: some View {
