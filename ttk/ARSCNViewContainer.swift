@@ -80,7 +80,9 @@ struct ARSCNViewContainer: UIViewRepresentable {
         func physicsWorld(_ world: SCNPhysicsWorld, didBegin contact: SCNPhysicsContact) {
             if contact.nodeA.name == "tablePlane" || contact.nodeB.name == "tablePlane" {
                 // when an object falls off the ground, the game stops
-                parent.gameState = .ended
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0, execute: {
+                    self.parent.gameState = .ended
+                })
                 
             }
         }

@@ -32,14 +32,19 @@ class ARSCNViewModel: ObservableObject {
         if newModelNode.name != "newModel" {  // create the new model node
             newModelNode = SCNNode()
             newModelNode.name = "newModel"
-            newModelNode.position.y += 0.3
+            newModelNode.position.y += (0.3 + highestObjectHeight)
             let gameSceneNode = arSCNView.scene.rootNode.childNode(withName: "gameScene", recursively: true)!
             gameSceneNode.addChildNode(newModelNode)
         }
         
         // TODO: randomly choose a new model...
         let modelNodes = SCNScene(named: modelFiles[0])!.rootNode.childNodes
+        let randomFloat = Float.random(in: 1..<2)
+
         for node in modelNodes {
+            node.scale.x *= randomFloat
+            node.scale.y *= randomFloat
+            node.scale.z *= randomFloat
             newModelNode.addChildNode(node)
         }
     }
@@ -50,7 +55,7 @@ class ARSCNViewModel: ObservableObject {
         let APhysicsBody = SCNPhysicsBody(type: .dynamic, shape: SCNPhysicsShape(node: newModelNode.childNodes[1], options: [.collisionMargin: 0.0]))
         APhysicsBody.restitution = 0.2
         APhysicsBody.friction = 1.0
-        APhysicsBody.rollingFriction = 0.95
+        APhysicsBody.rollingFriction = 0.8
         APhysicsBody.angularVelocityFactor = SCNVector3(x: 0.1, y: 0.1, z: 0.1)  // make it hard to rotate
         APhysicsBody.contactTestBitMask = 1  // only report the collision with ground
         APhysicsBody.categoryBitMask ^= 0  // clear the last bit to avoid report contact between objects
@@ -62,7 +67,7 @@ class ARSCNViewModel: ObservableObject {
     
     func translateObject(direction: TranslateDirection) {
         // I'm really bad at computer graphics.
-        //This reminds me of the course in the last semester for which I got the worst grade among all courses.
+        // This reminds me of the course in the last semester for which I got the worst grade among all courses.
         
         let directionAngle: Float
         if direction == .left || direction == .right { // move in a vertical direction to the camera direction
@@ -117,8 +122,8 @@ class ARSCNViewModel: ObservableObject {
     }
     
     func updateHighestModelHeight() {
-        if newModelNode.position.y - 0.3 > self.highestObjectHeight {
-            self.highestObjectHeight = newModelNode.position.y - 0.3
+        if newModelNode.childNodes.first!.presentation.position.y + 0.3 > self.highestObjectHeight {
+            self.highestObjectHeight = newModelNode.childNodes.first!.presentation.position.y + 0.3
         }
     }
 }
