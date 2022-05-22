@@ -56,7 +56,7 @@ class ARSCNViewModel: ObservableObject {
         APhysicsBody.restitution = 0.2
         APhysicsBody.friction = 1.0
         APhysicsBody.rollingFriction = 0.8
-        APhysicsBody.angularVelocityFactor = SCNVector3(x: 0.1, y: 0.1, z: 0.1)  // make it hard to rotate
+//        APhysicsBody.angularVelocityFactor = SCNVector3(x: 0.1, y: 0.1, z: 0.1)  // make it hard to rotate
         APhysicsBody.contactTestBitMask = 1  // only report the collision with ground
         APhysicsBody.categoryBitMask ^= 0  // clear the last bit to avoid report contact between objects
         modelNode.physicsBody = APhysicsBody

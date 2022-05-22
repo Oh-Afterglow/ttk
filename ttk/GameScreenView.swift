@@ -17,6 +17,7 @@ struct GameScreen: View {
     @State var scenePlaced = false
     @State var inGameButtonDisable = false
     @State var playerName = ""
+    @State var submitButtonDisable = false
 
     
     var body: some View {
@@ -60,10 +61,12 @@ struct GameScreen: View {
                         HStack{
                             Button(action: {
                                 scoreRankViewModel.insertNewRecord(score: Int16(accumulatedObjectNumber), playerName: playerName)
+                                submitButtonDisable = true
                             }, label: {
-                                Text("Submit")
+                                Text(!submitButtonDisable ? "Submit" : "✓")
                             })
                             .buttonStyle(.bordered)
+                            .disabled(submitButtonDisable)
                             Button(action: {
                                 gameState = .title
                             }, label: {
@@ -199,10 +202,13 @@ struct GameScreen: View {
                         .fill(.thinMaterial)
                         .frame(width: 60, height: 60, alignment: .center)
                         .opacity(0.5)
-                    Text("\(accumulatedObjectNumber)")
-                        .font(.system(size: 20))
-                        .bold()
-                        .padding()
+                    VStack {
+                        Text("Score:")
+                            .bold()
+                        Text("\(accumulatedObjectNumber)")
+                            .font(.system(size: 20))
+                            .bold()
+                    }
                 }
                 Rectangle()
                     .frame(maxWidth: .infinity, idealHeight: 60)
