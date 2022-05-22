@@ -11,7 +11,6 @@ import SceneKit
 
 class ARSCNViewModel: ObservableObject {
     var arSCNView: ARSCNView
-    var currentNode: SCNNode?
     var cameraDirection = SCNVector3()
     var newModelNode = SCNNode() // a special node to place the newly added object
     var counter = 0
@@ -91,7 +90,7 @@ class ARSCNViewModel: ObservableObject {
         } else if newModelNode.position.x + deltaX < -0.075 {
             newModelNode.position.x = -0.075
         } else {
-            newModelNode.position.x += deltaX
+            newModelNode.worldPosition.x += deltaX
         }
 
         if newModelNode.position.z + deltaZ > 0.075 {
@@ -99,7 +98,7 @@ class ARSCNViewModel: ObservableObject {
         } else if newModelNode.position.z + deltaZ < -0.075 {
             newModelNode.position.z = -0.075
         } else {
-            newModelNode.position.z += deltaZ
+            newModelNode.worldPosition.z += deltaZ
         }
         
     }
