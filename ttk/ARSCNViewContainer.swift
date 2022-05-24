@@ -13,10 +13,12 @@ struct ARSCNViewContainer: UIViewRepresentable {
     
     @ObservedObject var arSCNViewModel: ARSCNViewModel
     @Binding var gameState: GameState
+    @Binding var inGameState: InGameState
     @Binding var scenePlaced: Bool
-    var gameSceneNode = SCNNode()
+    @State var gameSceneNode = SCNNode()
     
     func makeUIView(context: Context) -> ARSCNView {
+        
         gameSceneNode.name = "gameScene"
         
         let gameSceneNodes = SCNScene(named: "art.scnassets/SceneKit Scene.scn")!.rootNode.childNodes
@@ -81,7 +83,7 @@ struct ARSCNViewContainer: UIViewRepresentable {
             if contact.nodeA.name == "tablePlane" || contact.nodeB.name == "tablePlane" {
                 // when an object falls off the ground, the game stops
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1.0, execute: {
-                    self.parent.gameState = .ended
+                    self.parent.inGameState = .ended
                 })
                 
             }
@@ -92,7 +94,6 @@ struct ARSCNViewContainer: UIViewRepresentable {
                 // update the direction of camera 30 times a second
                 
                 let cameraMat = SCNMatrix4(frame.camera.transform)
-//                let origin = parent.arSCNViewModel.newModelNode.position
                 parent.arSCNViewModel.cameraDirection = SCNVector3(x: -1 * cameraMat.m31, y: -1 * cameraMat.m32, z: -1 * cameraMat.m33)
             }
             frameCounter += 1
@@ -104,7 +105,7 @@ struct ARSCNViewContainer: UIViewRepresentable {
         }
         
         @objc func handleTap(recognizer: UITapGestureRecognizer){
-            if parent.gameState == .unstarted {  // only allow adjusting position before the game start
+            if parent.inGameState == .unstarted {  // only allow adjusting position before the game start
                 let tapLocation = recognizer.location(in: self.parent.arSCNViewModel.arSCNView)
                 let hitTest = self.parent.arSCNViewModel.arSCNView.hitTest(tapLocation, types: .existingPlaneUsingExtent)
                 if hitTest.isEmpty {  // TODO: If I have enough time, change this into raycast

@@ -18,28 +18,29 @@ struct GameScreen: View {
     @State var inGameButtonDisable = false
     @State var playerName = ""
     @State var submitButtonDisable = false
+    @State var inGameState = InGameState.unstarted
 
     
     var body: some View {
         ZStack{
             ZStack(alignment: .top) {
-                ARSCNViewContainer(arSCNViewModel: arSCNViewModel, gameState: $gameState, scenePlaced: $scenePlaced)
+                ARSCNViewContainer(arSCNViewModel: arSCNViewModel, gameState: $gameState, inGameState: $inGameState, scenePlaced: $scenePlaced)
             
                 VStack {
                     Rectangle()
                         .frame(height: 30)
                         .opacity(0)
                     
-                    if gameState == .ongoing {
+                    if inGameState == .ongoing {
                         inGameLabel
-                    } else if gameState == .unstarted {
+                    } else if inGameState == .unstarted {
                         prestartLabel
-                    } else if gameState == .ended {
+                    } else if inGameState == .ended {
                         // nothing...
                     }
                 }
             }
-            if gameState == .ended {
+            if inGameState == .ended {
                 ZStack{
                     Rectangle()
                         .fill(.thinMaterial) // cover the scene
@@ -68,7 +69,13 @@ struct GameScreen: View {
                             .buttonStyle(.bordered)
                             .disabled(submitButtonDisable)
                             Button(action: {
+                                arSCNViewModel.resetScene()
+                                accumulatedObjectNumber = 0
+                                playerName = ""
+                                scenePlaced = false
+                                submitButtonDisable = false
                                 gameState = .title
+                                inGameState = .unstarted
                             }, label: {
                                 Text("Return to Title")
                             })
@@ -91,7 +98,7 @@ struct GameScreen: View {
                 Text("Tap on a plane to place the game scene.")
                     .bold()
                 Button(action: {
-                    gameState = .ongoing
+                    inGameState = .ongoing
                 }, label: {
                     Text("Start Game")
                         .bold()
@@ -132,7 +139,7 @@ struct GameScreen: View {
                             arSCNViewModel.releaseNewModel()
                             self.inGameButtonDisable = true
                             DispatchQueue.main.asyncAfter(deadline: .now() + 4.0) {
-                                if gameState == .ongoing || gameState == .unstarted { // TODO: remove unstarted
+                                if inGameState == .ongoing {
                                     arSCNViewModel.updateHighestModelHeight()
                                     arSCNViewModel.addNewModel()
                                     self.inGameButtonDisable = false
@@ -227,4 +234,8 @@ struct GameScreen: View {
 
 enum Turn {
     case first, second
+}
+
+enum InGameState {
+    case unstarted, ongoing, ended
 }

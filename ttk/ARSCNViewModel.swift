@@ -22,7 +22,7 @@ class ARSCNViewModel: ObservableObject {
         arSCNView = ARSCNView(frame: .zero)
         arSCNView.scene = SCNScene()
         arSCNView.scene.physicsWorld.gravity.y = -1.0
-        newModelNode.position.y += (0.3 + highestObjectHeight)
+        newModelNode.worldPosition.y = (0.3 + highestObjectHeight)
         newModelNode.name = "newModel"
         arSCNView.setupForARWorldConfiguration()
     }
@@ -31,7 +31,7 @@ class ARSCNViewModel: ObservableObject {
         if newModelNode.name != "newModel" {  // create the new model node
             newModelNode = SCNNode()
             newModelNode.name = "newModel"
-            newModelNode.position.y += (0.3 + highestObjectHeight)
+            print(highestObjectHeight)
             let gameSceneNode = arSCNView.scene.rootNode.childNode(withName: "gameScene", recursively: true)!
             gameSceneNode.addChildNode(newModelNode)
         }
@@ -46,6 +46,7 @@ class ARSCNViewModel: ObservableObject {
             node.scale.z *= randomFloat
             newModelNode.addChildNode(node)
         }
+        newModelNode.position.y = (0.3 + highestObjectHeight)
     }
     
     func releaseNewModel() {
@@ -124,6 +125,16 @@ class ARSCNViewModel: ObservableObject {
         if newModelNode.childNodes.first!.presentation.position.y + 0.3 > self.highestObjectHeight {
             self.highestObjectHeight = newModelNode.childNodes.first!.presentation.position.y + 0.3
         }
+    }
+    
+    func resetScene() {
+        highestObjectHeight = 0.0
+        let gameSceneNode = arSCNView.scene.rootNode.childNode(withName: "gameScene", recursively: true)!
+        for node in gameSceneNode.childNodes {
+                node.removeFromParentNode()
+        }
+        gameSceneNode.removeFromParentNode()
+        self.newModelNode = SCNNode()
     }
 }
 

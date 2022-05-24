@@ -22,7 +22,7 @@ struct TitleScreen: View {
                 .padding(.horizontal, 45)
 
             Button(action: {
-                gameState = .unstarted
+                gameState = .game
             }, label: {
                 Text("Play!")
                     .bold()

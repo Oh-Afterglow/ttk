@@ -17,16 +17,23 @@ struct ContentView: View {
     
     var body: some View {
         if gameState == .title {
-            TitleScreen(gameState: self.$gameState, scoreRankViewModel: scoreRankViewModel)
+            titleScreen
         } else {
-            GameScreen(arSCNViewModel: self.arSCNViewModel, scoreRankViewModel: scoreRankViewModel, gameState: self.$gameState)
-                .ignoresSafeArea()
+            gameScreen
         }
 
+    }
+    
+    var titleScreen: some View {
+        TitleScreen(gameState: self.$gameState, scoreRankViewModel: scoreRankViewModel)
+    }
+    
+    var gameScreen: some View {
+        GameScreen(arSCNViewModel: self.arSCNViewModel, scoreRankViewModel: scoreRankViewModel, gameState: self.$gameState)
+            .ignoresSafeArea()
     }
 }
 
 enum GameState {
-    case title
-    case unstarted, ongoing, ended
+    case title, game
 }
