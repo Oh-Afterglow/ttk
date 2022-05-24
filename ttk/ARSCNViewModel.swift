@@ -31,7 +31,6 @@ class ARSCNViewModel: ObservableObject {
         if newModelNode.name != "newModel" {  // create the new model node
             newModelNode = SCNNode()
             newModelNode.name = "newModel"
-            print(highestObjectHeight)
             let gameSceneNode = arSCNView.scene.rootNode.childNode(withName: "gameScene", recursively: true)!
             gameSceneNode.addChildNode(newModelNode)
         }
